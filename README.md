@@ -9,7 +9,7 @@
 
 ###### 📖 English / 📖 [简体中文](README.zh-CN.md)
 
-This project is a video information plugin for Synology **Video Station**. It provides a way to fetch metadata from websites
+This project is a video information plugin for Synology **Video Station** for import movie data from KinoPoisk DB. It provides a way to fetch metadata from websites
 other than the default ones.
 
 * Implemented in Python without any third-party dependencies.
