@@ -15,7 +15,6 @@ other than the default ones.
 * Supports multiple sources, and can be easily extended to support more.
 * Has a simple configuration page where you can customize your plugin.
 
-![preview](preview.png)
 
 ## Usage
 
