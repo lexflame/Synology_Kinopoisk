@@ -1,4 +1,4 @@
-# *Syno*logy Video Info Plugin for *KINO**POISK*
+# *Syno*logy Video Info Plugin for *KINO*POISK*
 
 # Dependencies
 [![GitHub Release](https://img.shields.io/github/v/release/C5H12O5/syno-videoinfo-plugin?logo=github&style=flat&color=blue)](https://github.com/C5H12O5/syno-videoinfo-plugin/releases)
