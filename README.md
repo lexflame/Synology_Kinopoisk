@@ -1,6 +1,6 @@
 # *Syno*logy Video Info Plugin for *KINO*POISK
 
-# Dependencies
+# Dependencies INFO (*syno-videoinfo-plugin*)
 [![GitHub Release](https://img.shields.io/github/v/release/C5H12O5/syno-videoinfo-plugin?logo=github&style=flat&color=blue)](https://github.com/C5H12O5/syno-videoinfo-plugin/releases)
 ![GitHub Downloads](https://img.shields.io/github/downloads/C5H12O5/syno-videoinfo-plugin/total?logo=github&style=flat&color=green)
 ![Python Support](https://img.shields.io/badge/Python-3.6+-green?logo=python&style=flat&color=steelblue)
