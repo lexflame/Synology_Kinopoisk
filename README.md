@@ -15,6 +15,7 @@ other than the default ones.
 * Implemented in Python without any third-party dependencies.
 * Supports multiple sources, and can be easily extended to support more.
 * Has a simple configuration page where you can customize your plugin.
+* Enter your API-KEY from KinoPoisk to scrapeflows.conf directiv Kinopoisk::apikey
 
 
 ## Usage
