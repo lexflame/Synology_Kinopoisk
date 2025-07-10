@@ -1,0 +1,121 @@
+{
+  "type": "movie",
+  "site": "Kinopoisk",
+  "doh_enabled": false,
+  "config": {
+    "apikey": {
+      "icon": "key",
+      "name": "API Key"
+    }
+  },
+  "steps": [
+    {
+      "retval": {
+        "ifempty": "apikey"
+      }
+    },
+    {
+      "doh": {
+        "host": "api.kinopoisk.dev"
+      }
+    },
+    {
+      "http": {
+        "url": "https://api.kinopoisk.dev/v1.4/movie/search?token={apikey}&page=1&limit=10&query={title}",
+        "method": "GET",
+        "headers": {
+          "Accept": "application/json"
+        },
+        "timeout": 20,
+        "result": "metadata"
+      }
+    },
+    {
+      "collect": {
+        "source": "metadata",
+        "into": {
+          "movie_id": "['xp_texts', './docs//id']"
+        }
+      }
+    },
+    {
+      "loop": {
+        "source": "movie_id",
+        "item": "id",
+        "steps": [
+          {
+            "http": {
+              "url": "https://api.kinopoisk.dev/v1.4/movie/{id}?token={$parent[apikey]}",
+              "method": "GET",
+              "headers": {
+                "Accept": "application/json"
+              },
+              "timeout": 20,
+              "result": "subject"
+            }
+          },
+          {
+            "collect": {
+              "source": "subject",
+              "into": {
+                "movie": {
+                  "title": "['xp_text', './name']",
+                  "tagline": "['xp_text', './slogan']",
+                  "original_available": "['xp_text', './premiere/world']",
+                  "summary": "['xp_text', './description']",
+                  "certificate": "['xp_text', './ratingMpaa']",
+                  "genre": "['xp_texts', './genres//name']",
+                  "actor": "['xp_texts', './persons//name']",
+                  "writer": "['re_matches', '\"name\":\"([^\"]*?)\"[^{{}}]*?\"enProfession\":\"writer\"']",
+                  "director": "['re_matches', '\"name\":\"([^\"]*?)\"[^{{}}]*?\"enProfession\":\"director\"']",
+                  "extra": {
+                    "syno-videoinfo-plugin-1.3.7": {
+                      "reference": {
+                        "themoviedb": "['xp_text', './externalId/tmdb', 'int']",
+                        "imdb": "['xp_text', './externalId/imdb']"
+                      },
+                      "vote_average": [
+                        "['xp_text', './votes/kp']"
+                      ],
+                      "poster": [
+                        "['xp_text', './poster/previewUrl']"
+                      ],
+                      "backdrop": [
+                        "['xp_text', './poster/previewUrl']"
+                      ],
+                      "collection_id": {
+                        "themoviedb": "['xp_text', './externalId/tmdb', 'int']"
+                      }
+                    }
+                  }
+                },
+                "rating": "['xp_text', './rating/kp', 're_sub', '(\\d+\\.\\d)\\d*', '\\\\1']"
+              }
+            }
+          },
+          {
+            "collect": {
+              "source": "rating",
+              "into": {
+                "movie": {
+                  "extra": {
+                    "Kinopoisk": {
+                      "rating": {
+                        "Kinopoisk": "['re_match', '(.*)', 'float']"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "retval": {
+              "source": "movie"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

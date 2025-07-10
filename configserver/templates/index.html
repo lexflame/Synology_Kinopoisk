@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Synology Video Info Plugin</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@materializecss/materialize@1.2.2/dist/css/materialize.min.css" />
+    <style>
+        .chip {
+            font-size: 14px;
+            align-items: center;
+            display: inline-flex;
+            border: 1px solid #e4e4e4;
+            border-radius: 8px;
+            background-color: transparent;
+            padding: 0 6px 0 12px;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="light-blue lighten-1" role="navigation">
+        <div class="nav-wrapper container">
+            <a class="brand-logo">Synology Video Info Plugin</a>
+            <ul class="right hide-on-med-and-down">
+                <li>
+                    <a href="https://github.com/C5H12O5/syno-videoinfo-plugin">
+                        <i class="material-symbols-outlined right">open_in_new</i>
+                        GitHub
+                    </a>
+                </li>
+                <li>
+                    <a href="#auth" class="modal-trigger">
+                        <i class="material-symbols-outlined right">admin_panel_settings</i>
+                        Auth
+                    </a>
+                </li>
+                <li>
+                    <a href="#exit" class="modal-trigger">
+                        <i class="material-symbols-outlined right">power_settings_new</i>
+                        Exit
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="section no-pad-bot">
+        <div class="container">
+            <div class="row">
+                <div class="col s6">
+                    <h6>Metadata Sources:</h6>
+                </div>
+                <div class="col s6 right-align">
+                    <a href="#save" class="modal-trigger">
+                        <i class="material-symbols-outlined" style="font-size:3rem;">save</i>
+                    </a>
+                </div>
+            </div>
+            <ul class="collapsible">
+                ${sources}
+            </ul>
+            <div class="row">
+                <div class="col s12">
+                    <h6>DNS-over-HTTPS Resolvers:</h6>
+                    <div id="resolvers" class="chips"></div>
+                </div>
+            </div>
+            <h5 class="right-align">${version}</h5>
+        </div>
+    </div>
+
+    <div id="exit" class="modal">
+        <div class="modal-content">
+            <h6>Exit and close the page?</h6>
+        </div>
+        <div class="modal-footer">
+            <a class="modal-close waves-effect btn-flat">Cancel</a>
+            <a id="exit-btn" class="modal-close waves-effect waves-red btn-flat">Confirm</a>
+        </div>
+    </div>
+
+    <div id="save" class="modal">
+        <div class="modal-content">
+            <h6>Save the changes?</h6>
+        </div>
+        <div class="modal-footer">
+            <a class="modal-close waves-effect btn-flat">Cancel</a>
+            <a id="save-btn" class="modal-close waves-effect waves-green btn-flat">Confirm</a>
+        </div>
+    </div>
+
+    <div id="auth" class="modal">
+        <div class="modal-content">
+            <h6>Enable basic authentication?</h6>
+            <div class="row">
+                <div class="input-field col s6">
+                    <input id="username" type="text" class="validate">
+                    <label for="username">Username</label>
+                </div>
+                <div class="input-field col s6">
+                    <input id="password" type="password" class="validate">
+                    <label for="password">Password</label>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <a class="modal-close waves-effect btn-flat">Cancel</a>
+            <a id="auth-btn" class="modal-close waves-effect waves-green btn-flat">Confirm</a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@materializecss/materialize@1.2.2/dist/js/materialize.min.js"></script>
+    <script type="text/javascript">
+        const resolvers = ${resolvers};
+        document.addEventListener('DOMContentLoaded', () => {
+            M.AutoInit();
+
+            var resolversElem = document.getElementById('resolvers');
+            M.Chips.init(resolversElem, {
+                placeholder: 'Set up resolvers',
+                secondaryPlaceholder: '+ New resolver',
+                data: resolvers.map(resolver => ({tag: resolver})),
+                autocompleteOptions: {
+                    data: resolvers.reduce((obj, resolver) => {
+                        obj[resolver] = null;
+                        return obj;
+                    }, {})
+                }
+            });
+
+            var saveBtn = document.getElementById('save-btn');
+            saveBtn.addEventListener('click', event => {
+                event.preventDefault();
+
+                var flowsConf = {};
+                document.querySelectorAll('form').forEach(form => {
+                    var typesElem = document.getElementById(form.id + '-types');
+                    var dohElem = document.getElementById(form.id + '-doh');
+                    var priorityElem = document.getElementById(form.id + '-priority');
+                    flowsConf[form.id] = {
+                        types: M.FormSelect.getInstance(typesElem).getSelectedValues(),
+                        doh: M.FormSelect.getInstance(dohElem).getSelectedValues()[0] == '1',
+                        priority: parseInt(priorityElem.value)
+                    };
+                    var configs = document.getElementsByClassName(form.id + '-config');
+                    [...configs].forEach(config => {
+                        flowsConf[form.id][config.id.substring(form.id.length + 1)] = config.value;
+                    });
+                });
+
+                var resolversInst = M.Chips.getInstance(resolversElem);
+                var resolversConf = resolversInst.chipsData.map(chip => chip.tag);
+
+                fetch('/save', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ flows: flowsConf, resolvers: resolversConf }, null, 2)
+                }).then(response => {
+                    if (response.ok) {
+                        M.toast({
+                            html: 'Save successful!',
+                            classes: 'center-align green lighten-2',
+                            displayLength: 1000
+                        })
+                    } else {
+                        throw new Error(response.statusText);
+                    }
+                }).catch(error => {
+                    M.toast({ html: error, classes: 'center-align red lighten-2' })
+                });
+            });
+
+            var authBtn = document.getElementById('auth-btn');
+            authBtn.addEventListener('click', event => {
+                event.preventDefault();
+
+                var username = document.getElementById('username').value;
+                var password = document.getElementById('password').value;
+                if (username == '' && password == '') {
+                    return;
+                }
+
+                fetch('/auth', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: btoa(username + ':' + password)
+                }).then(response => {
+                    if (response.ok) {
+                        M.toast({
+                            html: 'Authentication enabled!',
+                            classes: 'center-align green lighten-2',
+                            displayLength: 1000
+                        })
+                    } else {
+                        throw new Error(response.statusText);
+                    }
+                }).catch(error => {
+                    M.toast({ html: error, classes: 'center-align red lighten-2' })
+                });
+            });
+
+            var exitBtn = document.getElementById('exit-btn');
+            exitBtn.addEventListener('click', event => {
+                event.preventDefault();
+
+                fetch('/exit').then(response => {
+                    M.toast({ html: 'Closing server...', classes: 'center-align red lighten-2' })
+                    setTimeout(function() {
+                        location.reload(true);
+                    }, 1500);
+                }).catch(error => {
+                    location.reload(true);
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>
