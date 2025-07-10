@@ -1,5 +1,6 @@
-# *Syno*logy Video Info Plugin for KINOPOISK
+# *Syno*logy Video Info Plugin for *KINO**POISK*
 
+# Dependencies
 [![GitHub Release](https://img.shields.io/github/v/release/C5H12O5/syno-videoinfo-plugin?logo=github&style=flat&color=blue)](https://github.com/C5H12O5/syno-videoinfo-plugin/releases)
 ![GitHub Stars](https://img.shields.io/github/stars/C5H12O5/syno-videoinfo-plugin?logo=github&style=flat&color=yellow)
 ![GitHub Downloads](https://img.shields.io/github/downloads/C5H12O5/syno-videoinfo-plugin/total?logo=github&style=flat&color=green)
@@ -56,6 +57,7 @@ Configure the plugin:
 > * Naming format: TV_Show_Name.SXX.EYY.ext (***S*** as a shorthand for ***Season*** and ***E*** for ***Episode***)
 > * Example: Gossip Girl.S03.E04.avi
 
+# Dependencies *syno-videoinfo-plugin*
 ## Development
 
 You can develop your own plugin based on this project easily. Here are the steps:
