@@ -7,7 +7,7 @@
 ![Python Support](https://img.shields.io/badge/Python-3.6+-green?logo=python&style=flat&color=steelblue)
 [![GitHub License](https://img.shields.io/github/license/C5H12O5/syno-videoinfo-plugin?logo=apache&style=flat&color=lightslategray)](LICENSE)
 
-###### 📖 English / 📖 [简体中文](README.zh-CN.md)
+###### 📖 English 
 
 This project is a video information plugin for Synology **Video Station** for import movie data from KinoPoisk DB. It provides a way to fetch metadata from websites
 other than the default ones.
